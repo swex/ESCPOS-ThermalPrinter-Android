@@ -3,18 +3,22 @@ package com.dantsu.escposprinter.connection;
 import com.dantsu.escposprinter.exceptions.EscPosConnectionException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public abstract class DeviceConnection {
     protected OutputStream outputStream;
+    protected InputStream inputStream;
     protected byte[] data;
 
     public DeviceConnection() {
         this.outputStream = null;
+        this.inputStream = null;
         this.data = new byte[0];
     }
 
     public abstract DeviceConnection connect() throws EscPosConnectionException;
+
     public abstract DeviceConnection disconnect();
 
     /**
@@ -36,6 +40,17 @@ public abstract class DeviceConnection {
         this.data = data;
     }
 
+    public int read(byte[] bytes) {
+        if (this.inputStream == null) {
+            return 0;
+        }
+        try {
+            int result = this.inputStream.read(bytes);
+            return result;
+        } catch (IOException e) {
+            return 0;
+        }
+    }
 
     /**
      * Send data to the device.
@@ -43,11 +58,12 @@ public abstract class DeviceConnection {
     public void send() throws EscPosConnectionException {
         this.send(0);
     }
+
     /**
      * Send data to the device.
      */
     public void send(int addWaitingTime) throws EscPosConnectionException {
-        if(!this.isConnected()) {
+        if (!this.isConnected()) {
             throw new EscPosConnectionException("Unable to send data to device.");
         }
         try {
@@ -55,7 +71,7 @@ public abstract class DeviceConnection {
             this.outputStream.flush();
             int waitingTime = addWaitingTime + this.data.length / 16;
             this.data = new byte[0];
-            if(waitingTime > 0) {
+            if (waitingTime > 0) {
                 Thread.sleep(waitingTime);
             }
         } catch (IOException | InterruptedException e) {

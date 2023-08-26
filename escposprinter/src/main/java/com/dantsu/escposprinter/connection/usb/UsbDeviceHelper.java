@@ -48,4 +48,17 @@ public class UsbDeviceHelper {
         }
         return null;
     }
+
+    static public UsbEndpoint findEndpointOut(UsbInterface usbInterface) {
+        if (usbInterface != null) {
+            int endpointsCount = usbInterface.getEndpointCount();
+            for (int i = 0; i < endpointsCount; i++) {
+                UsbEndpoint endpoint = usbInterface.getEndpoint(i);
+                if (endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK && endpoint.getDirection() == UsbConstants.USB_DIR_IN) {
+                    return endpoint;
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -44,6 +44,7 @@ public class UsbConnection extends DeviceConnection {
 
         try {
             this.outputStream = new UsbOutputStream(this.usbManager, this.usbDevice);
+            this.inputStream = new UsbInputStream(this.usbManager, this.usbDevice);
             this.data = new byte[0];
         } catch (IOException e) {
             e.printStackTrace();
@@ -65,6 +66,13 @@ public class UsbConnection extends DeviceConnection {
                 e.printStackTrace();
             }
             this.outputStream = null;
+            try {
+                this.inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            }
+            this.inputStream = null;
         }
         return this;
     }
@@ -75,6 +83,7 @@ public class UsbConnection extends DeviceConnection {
     public void send() throws EscPosConnectionException {
         this.send(0);
     }
+
     /**
      * Send data to the device.
      */
